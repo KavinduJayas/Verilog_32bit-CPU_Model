@@ -1,3 +1,5 @@
+
+`timescale 1ns/100ps
 /*module testbed;//for testing the alu
 
     reg [7:0] DATA1,DATA2;

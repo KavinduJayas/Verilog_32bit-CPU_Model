@@ -1,6 +1,7 @@
 `include "REG_FILE.v"
 `include "ALU.v"
 `include "ctrl_unit.v"
+`timescale 1ns/100ps
  
 module cpu(PC, INSTRUCTION,CLK, RESET, READ, WRITE, ADDRESS, WRITE_DATA, READ_DATA, BUSYWAIT);
 

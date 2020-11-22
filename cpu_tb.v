@@ -22,9 +22,9 @@ module cpu_tb;
 
     wire mem_read;
     wire mem_write;
-    wire mem_address;
-    wire mem_writedata;
-    wire mem_readdata;
+    wire[5:0] mem_address;
+    wire[31:0] mem_writedata;
+    wire[31:0] mem_readdata;
 	wire mem_busywait;
 
     reg [7:0] instr_mem[0:1023];//instruction memory array
@@ -32,7 +32,7 @@ module cpu_tb;
     cpu mycpu(PC, INSTRUCTION, CLK, RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,BUSYWAIT);
     dcache cache(CLK,RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,BUSYWAIT,mem_read,mem_write,mem_address,mem_writedata,mem_readdata,mem_busywait);
     data_memory dmem(CLK,RESET,mem_read,mem_write,mem_address,mem_writedata,mem_readdata,mem_busywait);
-    
+
     //taking 4 contiguous memory locations to create an instruction
     assign #2 INSTRUCTION = {instr_mem[PC+32'b0011],instr_mem[PC+32'b0010],instr_mem[PC+32'b0001],instr_mem[PC]};
     

@@ -8,6 +8,8 @@ Description	:
 This file presents a skeleton implementation of the cache controller using a Finite State Machine model. Note that this code is not complete.
 */
 
+`timescale 1ns/100ps
+
 module dcache (
 	clock,
     reset,
@@ -36,12 +38,12 @@ module dcache (
     output reg      	busywait;
 
     //memory port
-    input reg [31:0]	mem_readdata;
-    input reg      	    mem_busywait;
-    output           	mem_read;
-    output           	mem_write;
-    output[7:0]      	mem_address;
-    output[31:0]     	mem_writedata;
+    input [31:0]	    mem_readdata;
+    input       	    mem_busywait;
+    output reg         	mem_read;
+    output reg         	mem_write;
+    output reg[5:0]     mem_address;
+    output reg[31:0]    mem_writedata;
 
     wire[2:0] tag;
     wire[2:0] index;
@@ -108,7 +110,7 @@ module dcache (
             begin
                 mem_read = 0;
                 mem_write = 0;
-                mem_address = 8'dx;
+                mem_address = 6'dx;
                 mem_writedata = 8'dx;
                 busywait = 0;                
 
@@ -150,19 +152,19 @@ module dcache (
     always @(posedge clock, reset)
     begin
         if(reset) begin
-            for(i=0;i<8;i++){
+            for(i=0;i<8;i++) begin
                 cache_mem[i] = 0;
-            }
+            end
         end else if(write && hit) begin
-            cache_mem[index] = {1'b1,1'b1,tag}
+            cache_mem[index] = {1'b1,1'b1,tag};
             case (offset)
                 0: cache_mem[index][0] = #1 {writedata};
                 1: cache_mem[index][1] = #1 {writedata};
                 2: cache_mem[index][2] = #1 {writedata};
                 3: cache_mem[index][3] = #1 {writedata};
             endcase
-        end else if((write || read) && !hit !mem_busywait) //storing the correct data ftched from memory due to a miss
-            cache_mem[index] = #1 {1'b1,1'b0,tag,mem_readdata}
+        end else if((write || read) && !hit && !mem_busywait) //storing the correct data ftched from memory due to a miss
+            cache_mem[index] = #1 {1'b1,1'b0,tag,mem_readdata};
     end
 
     //reading
@@ -177,5 +179,5 @@ module dcache (
         default: readdata = 8'bz;
         endcase
     end
-    endmodule
+    end
 endmodule

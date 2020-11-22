@@ -9,6 +9,8 @@ This file presents a primitive data memory module for CO224 Lab 6 - Part 2
 This memory allows data to be read and written as 4-Byte blocks
 */
 
+`timescale 1ns/100ps
+
 module data_memory(
 	clock,
     reset,
@@ -27,6 +29,8 @@ input[5:0]      	address;
 input[31:0]     	writedata;
 output reg [31:0]	readdata;
 output reg      	busywait;
+
+integer i;
 
 //Declare memory array 256x8-bits 
 reg [7:0] memory_array [255:0];
