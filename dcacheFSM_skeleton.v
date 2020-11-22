@@ -17,8 +17,6 @@ module dcache (
     writedata,
     readdata,
     busywait,
-	mem_clock,
-    mem_reset,
     mem_read,
     mem_write,
     mem_address,
@@ -37,8 +35,6 @@ module dcache (
     output reg [7:0]	readdata;
     output reg      	busywait;
 
-    reg set_dirty;
-
     //memory port
     input reg [31:0]	mem_readdata;
     input reg      	    mem_busywait;
@@ -47,14 +43,14 @@ module dcache (
     output[7:0]      	mem_address;
     output[31:0]     	mem_writedata;
 
-    wire tag;
-    wire index;
-    wire offset;
+    wire[2:0] tag;
+    wire[2:0] index;
+    wire[1:0] offset;
 
-    reg dirty;
-    reg hit;
-    reg vald;
-    reg cache_tag;//relevent tag value in the cache
+    wire dirty;
+    wire hit;
+    wire vald;
+    wire[2:0] cache_tag;//relevent tag value in the cache
     
     integer i;
     
@@ -66,11 +62,11 @@ module dcache (
     assign #1 index = address[4:2];//extracting relevent bits from the instruction
     assign #1 offset = address[1:0];
 
-    cache_tag = cache_mem[index][34:32];
-    valid = cache_mem[index][36];
-    dirty = cache_mem[index][35];
+    assign cache_tag = cache_mem[index][34:32];
+    assign valid = cache_mem[index][36];
+    assign dirty = cache_mem[index][35];
 
-    hit = #0.9 (valid && (tag==cache_tag)) ? 1 : 0;//tag comparison and checking for validity
+    assign #0.9 hit = (valid && (tag==cache_tag)) ? 1 : 0;//tag comparison and checking for validity
 
     /* Cache Controller FSM Start */
 
@@ -153,11 +149,11 @@ module dcache (
     //writing 
     always @(posedge clock, reset)
     begin
-        if(reset)
+        if(reset) begin
             for(i=0;i<8;i++){
-                cache_mem[i]=37'b0;
+                cache_mem[i] = 0;
             }
-        else if(write && hit) begin
+        end else if(write && hit) begin
             cache_mem[index] = {1'b1,1'b1,tag}
             case (offset)
                 0: cache_mem[index][0] = #1 {writedata};

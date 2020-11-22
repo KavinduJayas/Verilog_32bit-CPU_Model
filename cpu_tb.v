@@ -4,7 +4,8 @@
 //Group : 12
 
 `include "CPU.v"
-`include "dmem.v"
+`include "dcacheFSM_skeleton.v"
+`include "dmem_for_dcache.v"
 `timescale 1ns/100ps
 
 module cpu_tb;
@@ -18,9 +19,20 @@ module cpu_tb;
     wire [7:0]WRITE_DATA;
     wire[7:0]READ_DATA;
     wire BUSYWAIT;
-    reg [7:0] instr_mem[0:1023];//instruction memory array
-    data_memory dmem(CLK,RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,BUSYWAIT);
 
+    wire mem_read;
+    wire mem_write;
+    wire mem_address;
+    wire mem_writedata;
+    wire mem_readdata;
+	wire mem_busywait;
+
+    reg [7:0] instr_mem[0:1023];//instruction memory array
+
+    cpu mycpu(PC, INSTRUCTION, CLK, RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,BUSYWAIT);
+    dcache cache(CLK,RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,BUSYWAIT,mem_read,mem_write,mem_address,mem_writedata,mem_readdata,mem_busywait);
+    data_memory dmem(CLK,RESET,mem_read,mem_write,mem_address,mem_writedata,mem_readdata,mem_busywait);
+    
     //taking 4 contiguous memory locations to create an instruction
     assign #2 INSTRUCTION = {instr_mem[PC+32'b0011],instr_mem[PC+32'b0010],instr_mem[PC+32'b0001],instr_mem[PC]};
     
@@ -55,7 +67,6 @@ module cpu_tb;
      CPU
     -----
     */
-    cpu mycpu(PC, INSTRUCTION, CLK, RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,BUSYWAIT);
 
     initial
     begin
