@@ -1,0 +1,36 @@
+INPUT
+    CPU : cpu_read, cpu_write, cpu_write_data, {address:tag,index,offset}
+    MEM : mem_busywait,mem_read_data
+    CACHE : hit,dirty,cache_busywait  ; hit = valid & tag
+    CLK
+
+OUTPUT
+    CPU : cpu_busywait,cpu_read_data
+    CACHE : valid,dirty,tag,cache_busywait
+    MEM : mem_read, mem_write, mem_write_data, address
+
+
+read hit:cpu_read
+    hit
+        read=1
+        write=0
+
+write hit:cpu_write
+    hit
+        read=0
+        write=1
+        dirty=1
+
+write miss:cpu_write
+    !hit,!dirty 
+        
+
+
+read miss:cpu_read
+
+    !(valid && tag) & !dirty 
+        busywait=1
+        mem_*=1
+
+
+

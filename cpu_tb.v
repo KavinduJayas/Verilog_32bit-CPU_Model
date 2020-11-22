@@ -5,6 +5,7 @@
 
 `include "CPU.v"
 `include "dmem.v"
+`timescale 1ns/100ps
 
 module cpu_tb;
 
