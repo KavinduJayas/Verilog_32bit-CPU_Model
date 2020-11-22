@@ -62,16 +62,15 @@ module dcache (
     //                         1bit     1bit    3bit    32bit(4 bytes)    ==> 37bit
 
     //Combinational part for indexing, tag comparison for hit deciding, etc.
-    assign tag = address[7:5];
-    assign index = address[4:2];//extracting relevent bits from the instruction
-    assign offset = address[1:0];
-
+    assign #1 tag = address[7:5];
+    assign #1 index = address[4:2];//extracting relevent bits from the instruction
+    assign #1 offset = address[1:0];
 
     cache_tag = cache_mem[index][34:32];
     valid = cache_mem[index][36];
     dirty = cache_mem[index][35];
 
-    hit = (valid && (tag==cache_tag)) ? 1 : 0;//tag comparison and checking for validity
+    hit = #0.9 (valid && (tag==cache_tag)) ? 1 : 0;//tag comparison and checking for validity
 
     /* Cache Controller FSM Start */
 
@@ -116,6 +115,7 @@ module dcache (
                 mem_address = 8'dx;
                 mem_writedata = 8'dx;
                 busywait = 0;                
+
             end
         
             MEM_READ: 
@@ -158,17 +158,28 @@ module dcache (
                 cache_mem[i]=37'b0;
             }
         else if(write && hit) begin
-            cache_mem[index] = #40 {1'b1,1'b1,tag,writedata};
-        end else if(write && !mem_busywait) begin
-            cache_mem[index] = #40 {1'b1,1'b1,tag,cache_in};
-        end
+            cache_mem[index] = {1'b1,1'b1,tag}
+            case (offset)
+                0: cache_mem[index][0] = #1 {writedata};
+                1: cache_mem[index][1] = #1 {writedata};
+                2: cache_mem[index][2] = #1 {writedata};
+                3: cache_mem[index][3] = #1 {writedata};
+            endcase
+        end else if((write || read) && !hit !mem_busywait) //storing the correct data ftched from memory due to a miss
+            cache_mem[index] = #1 {1'b1,1'b0,tag,mem_readdata}
     end
 
     //reading
     always @ (*) begin 
     if(read)
     begin
-        readdata = #40 cache_mem[index][offset];
+        case(offset)
+        0:readdata = #1 cache_mem[index][0];
+        1:readdata = #1 cache_mem[index][1];
+        2:readdata = #1 cache_mem[index][2];
+        3:readdata = #1 cache_mem[index][3];
+        default: readdata = 8'bz;
+        endcase
     end
     endmodule
 endmodule
