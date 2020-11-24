@@ -1,8 +1,21 @@
-loadi 4 0x05   
-loadi 5 0x03   
-swi 4 0x00  
-swi 5 0x01     
-add 4 4 5     
-sub 5 4 5      
-lwi 6 0x00     
-lwi 7 0x01
+loadi 1 0x05
+loadi 2 0x06
+swi 2 0x80 //6
+swi 1 0x00 //5
+lwi 3 0x80 //6
+    
+// loadi 1 0x01
+// loadi 2 0x02
+// add 3 1 2
+// swi 3 0x01
+// lwi 5 0x01
+// lwi 4 0x01
+
+// loadi 4 0x05   
+// loadi 5 0x03   
+// swi 4 0x00  
+// swi 5 0x01     
+// add 4 4 5     
+// sub 5 4 5      
+// lwi 6 0x00     
+// lwi 7 0x01

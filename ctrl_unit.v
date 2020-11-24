@@ -22,7 +22,7 @@ module control_unit(INSTRUCTION,WRITEENABLE,ALUOP,COMPLEMENT_FLAG,IMMEDIATE_FALG
         WRITE = 0;
     end
 
-    always @ (opcode,BUSYWAIT) begin//control unit decisions ; with simulated decoding delays
+    always @ (INSTRUCTION,BUSYWAIT) begin//control unit decisions ; with simulated decoding delays
         case (opcode)
             8'b0000_0000 : begin//register is written into and an immediate value is chosen in a loadi instruction
                 WRITEENABLE <= #1 1;

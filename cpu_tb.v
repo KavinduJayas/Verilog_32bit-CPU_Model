@@ -85,7 +85,7 @@ module cpu_tb;
         // TODO: Reset the CPU (by giving a pulse to RESET signal) to start the program execution
         
         // finish simulation after some time
-        #500
+        #3000
         $finish;
         
     end

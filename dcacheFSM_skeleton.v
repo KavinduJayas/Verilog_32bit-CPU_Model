@@ -51,7 +51,7 @@ module dcache (
 
     wire dirty;
     wire hit;
-    wire vald;
+    wire valid;
     wire[2:0] cache_tag;//relevent tag value in the cache
     
     integer i;
@@ -82,9 +82,9 @@ module dcache (
             IDLE:
                 if ((read || write) && !dirty && !hit)  
                     next_state = MEM_READ;
-                else if ((read || write) && dirty)
+                else if ((read || write) && dirty && !hit)
                     next_state = MEM_WRITE;
-                else
+                else 
                     next_state = IDLE;
             
             MEM_READ:
@@ -123,6 +123,9 @@ module dcache (
                 mem_address = {tag, index};
                 mem_writedata = 32'dx;
                 busywait = 1;
+                #1 if(!mem_busywait) begin //storing the correct data ftched from memory due to a miss
+                cache_mem[index] =  {1'b1,1'b0,tag,mem_readdata};
+                end
             end
 
             MEM_WRITE:
@@ -156,15 +159,14 @@ module dcache (
                 cache_mem[i] = 0;
             end
         end else if(write && hit) begin
-            cache_mem[index] = {1'b1,1'b1,tag};
+            cache_mem[index][36:32] = {1'b1,1'b1,tag};//valid dirty
             case (offset)
-                0: cache_mem[index][0] = #1 {writedata};
-                1: cache_mem[index][1] = #1 {writedata};
-                2: cache_mem[index][2] = #1 {writedata};
-                3: cache_mem[index][3] = #1 {writedata};
+                0: cache_mem[index][7:0] = #1 {writedata};
+                1: cache_mem[index][15:8] = #1 {writedata};
+                2: cache_mem[index][23:16] = #1 {writedata};
+                3: cache_mem[index][31:24] = #1 {writedata};
             endcase
-        end else if((write || read) && !hit && !mem_busywait) //storing the correct data ftched from memory due to a miss
-            cache_mem[index] = #1 {1'b1,1'b0,tag,mem_readdata};
+        end
     end
 
     //reading
@@ -172,12 +174,24 @@ module dcache (
     if(read)
     begin
         case(offset)
-        0:readdata = #1 cache_mem[index][0];
-        1:readdata = #1 cache_mem[index][1];
-        2:readdata = #1 cache_mem[index][2];
-        3:readdata = #1 cache_mem[index][3];
+        2'b00:readdata = #1 cache_mem[index][7:0];
+        2'b01:readdata = #1 cache_mem[index][15:8];
+        2'b10:readdata = #1 cache_mem[index][23:16];
+        2'b11:readdata = #1 cache_mem[index][31:24];
         default: readdata = 8'bz;
         endcase
     end
     end
+    //   /* START DEBUGGING CODE (Not required in the usual implementation */
+    // initial
+    // begin
+    // // monitor changes in reg file content and print (used to check whether the CPU is running properly)
+    // $display("\n\t\t\t=================================================");
+    // $display("\t\t\t Change of Cache Content Starting from Time #5");
+    // $display("\t\t\t==================================================\n");
+    // $display("\t\ttime\treg0\treg1\treg2\treg3\treg4\t");
+    // $display("\t\t-----------------------------------------------------");
+    // $monitor($time, "\t%d\t%d\t%d\t%d",cache_mem[0][0],cache_mem[0][1],cache_mem[0][2],cache_mem[0][3]);
+    // end
+    // /* END DEBUGGING CODE */
 endmodule

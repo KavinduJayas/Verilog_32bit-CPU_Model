@@ -115,8 +115,8 @@ module cpu(PC, INSTRUCTION,CLK, RESET, READ, WRITE, ADDRESS, WRITE_DATA, READ_DA
     always @ (posedge CLK) begin//synchronous reset of the pc
         if(RESET)
             PC <= #1 32'b0;
-        if(!BUSYWAIT & !RESET)
-            PC <= #1 PC_NEXT;
+        #1 if(!BUSYWAIT & !RESET)
+             PC = PC_NEXT;
     end
 
 endmodule
