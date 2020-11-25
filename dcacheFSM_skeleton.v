@@ -80,9 +80,9 @@ module dcache (
     begin
         case (state)
             IDLE:
-                if ((read || write) && !dirty && !hit)  
+                if ((read || write) && !dirty && !hit)//non dity miss  
                     next_state = MEM_READ;
-                else if ((read || write) && dirty && !hit)
+                else if ((read || write) && dirty && !hit)//dirty miss
                     next_state = MEM_WRITE;
                 else 
                     next_state = IDLE;
@@ -124,7 +124,7 @@ module dcache (
                 mem_writedata = 32'dx;
                 busywait = 1;
                 #1 if(!mem_busywait) begin //storing the correct data ftched from memory due to a miss
-                cache_mem[index] =  {1'b1,1'b0,tag,mem_readdata};
+                cache_mem[index] =  {1'b1,1'b0,tag,mem_readdata};//valid not dirty
                 end
             end
 
@@ -151,14 +151,14 @@ module dcache (
 
     /* Cache Controller FSM End */ 
 
-    //writing 
-    always @(posedge clock, reset)
+    //writing (only hits)
+    always @(posedge clock)
     begin
         if(reset) begin
             for(i=0;i<8;i++) begin
                 cache_mem[i] = 0;
             end
-        end else if(write && hit) begin
+        end else if(write && hit) begin// on a write hit
             cache_mem[index][36:32] = {1'b1,1'b1,tag};//valid dirty
             case (offset)
                 0: cache_mem[index][7:0] = #1 {writedata};
@@ -182,16 +182,4 @@ module dcache (
         endcase
     end
     end
-    //   /* START DEBUGGING CODE (Not required in the usual implementation */
-    // initial
-    // begin
-    // // monitor changes in reg file content and print (used to check whether the CPU is running properly)
-    // $display("\n\t\t\t=================================================");
-    // $display("\t\t\t Change of Cache Content Starting from Time #5");
-    // $display("\t\t\t==================================================\n");
-    // $display("\t\ttime\treg0\treg1\treg2\treg3\treg4\t");
-    // $display("\t\t-----------------------------------------------------");
-    // $monitor($time, "\t%d\t%d\t%d\t%d",cache_mem[0][0],cache_mem[0][1],cache_mem[0][2],cache_mem[0][3]);
-    // end
-    // /* END DEBUGGING CODE */
 endmodule

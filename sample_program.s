@@ -1,21 +1,14 @@
-loadi 1 0x05
-loadi 2 0x06
-swi 2 0x80 //6
-swi 1 0x00 //5
-lwi 3 0x80 //6
-    
-// loadi 1 0x01
-// loadi 2 0x02
-// add 3 1 2
-// swi 3 0x01
-// lwi 5 0x01
-// lwi 4 0x01
+loadi 0 0x09 // 0 <-- 9 
+loadi 1 0x01 // 1 <-- 1  
+swd 0 1 //write miss 000 000 [01]  <-- 9
+swi 1 0x00 //write hit 000 000 [00] <-- 1 
+lwd 2 1 // read hit 000 000 [01] <-- 9
+lwd 3 1 // read hit 000 000 [01] <-- 9    
+sub 4 0 1 //reg 4 <-- 8     
+swi 4 0x02 //write hit 000 000 [10] <-- 8
+lwi 5 0x02 //read hit reg 5 <-- 8   
+swi 4 0x20 //write miss 001 000 [00] <-- 8       
+lwi 6 0x20 //read hit <--- 8
 
-// loadi 4 0x05   
-// loadi 5 0x03   
-// swi 4 0x00  
-// swi 5 0x01     
-// add 4 4 5     
-// sub 5 4 5      
-// lwi 6 0x00     
-// lwi 7 0x01
+// 000 - [0] [8] [9] [1] -------> [0] [8] [9] [1]
+// 000 - [0] [0] [0] [8] <-------
