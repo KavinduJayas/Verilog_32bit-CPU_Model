@@ -9,27 +9,32 @@ memory 1024 bytes 1024/128  3'b <== tag
 
 `timescale 1ns/100ps
 
-module mem_cache(
+module icache(
+	clock,
+    reset,
     pc,
-    instruction
     busywait,
+    instruction,
+    mem_read,
+    mem_busywait,
     mem_address,
-    mem_instruction,
-    mem_busywait
+    mem_instruction
 );
-
+    input clock;
+    input reset;
     input [31:0] pc;
-    output busywait;
-    output[31:0] instruction;
+    output reg busywait;
+    output reg [31:0] instruction;
 
-    output[8:0] mem_address;
+    output reg mem_read;
     input mem_busywait;
-    input [127:0] mem_instruction;
+    output reg [5:0] mem_address;
+    input [127:0] mem_instruction;//read data from memory
 
     wire[2:0] tag;
     wire[2:0] index;
     wire[1:0] offset;
-    
+
     wire[2:0] cache_tag;//relevent tag value in the cache
 
     integer i;
@@ -41,7 +46,7 @@ module mem_cache(
 
     //Combinational part for indexing, tag comparison for hit deciding, etc.
     assign #1 tag = pc[12:7];
-    assign #1 index = pc[6:4];//extracting relevent bits from the instruction
+    assign #1 index = pc[6:4];//extracting relevent bits from the pc
     assign #1 offset = pc[3:2];
 
     assign cache_tag = cache_mem[index][130:128];
@@ -91,7 +96,7 @@ module mem_cache(
                 mem_address = {tag, index};
                 busywait = 1;
                 #1 if(!mem_busywait) begin //storing the correct data ftched from memory due to a miss
-                cache_mem[index] =  {1'b1,tag,mem_readdata};//valid
+                cache_mem[index] =  {1'b1,tag,mem_instruction};//valid
                 end
             end
             
@@ -112,12 +117,12 @@ module mem_cache(
     if(hit)
     begin
         case(offset)
-        2'b00:readdata = #1 cache_mem[index][31:0];
-        2'b01:readdata = #1 cache_mem[index][64:32];
-        2'b10:readdata = #1 cache_mem[index][96:65];
-        2'b11:readdata = #1 cache_mem[index][128:97];
-        default: readdata = 8'bz;
+        2'b00:instruction = #1 cache_mem[index][31:0];
+        2'b01:instruction = #1 cache_mem[index][64:32];
+        2'b10:instruction = #1 cache_mem[index][96:65];
+        2'b11:instruction = #1 cache_mem[index][128:97];
+        default: instruction = 8'bz;
         endcase
     end
-
+    end
 endmodule
