@@ -1,9 +1,8 @@
 
 `timescale 1ns/100ps
-module control_unit(INSTRUCTION,WRITEENABLE,ALUOP,COMPLEMENT_FLAG,IMMEDIATE_FALG,BRANCH_FALG,JUMP_FALG,WRITE,READ,LOAD_WORD_FLAG,BUSYWAIT);
+module control_unit(INSTRUCTION,WRITEENABLE,ALUOP,COMPLEMENT_FLAG,IMMEDIATE_FALG,BRANCH_FALG,JUMP_FALG,WRITE,READ,LOAD_WORD_FLAG);
     
     input [31:0] INSTRUCTION;
-    input BUSYWAIT;
     output reg WRITEENABLE;
     output reg [2:0] ALUOP;
     output reg COMPLEMENT_FLAG;
@@ -22,7 +21,7 @@ module control_unit(INSTRUCTION,WRITEENABLE,ALUOP,COMPLEMENT_FLAG,IMMEDIATE_FALG
         WRITE = 0;
     end
 
-    always @ (INSTRUCTION,BUSYWAIT) begin//control unit decisions ; with simulated decoding delays
+    always @ (INSTRUCTION) begin//control unit decisions ; with simulated decoding delays
         case (opcode)
             8'b0000_0000 : begin//register is written into and an immediate value is chosen in a loadi instruction
                 WRITEENABLE <= #1 1;

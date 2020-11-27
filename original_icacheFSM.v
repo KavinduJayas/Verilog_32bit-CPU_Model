@@ -43,6 +43,13 @@ module icache(
     //                   ||
     reg[131:0] cache_mem[7:0];//valid,  tag,    data                         
     //                          1bit    3bit    128bit(16 bytes/4 words)     ==> 132bit
+    // always @(pc)begin
+    //     busywait = 1;
+    // end
+
+    always @(posedge clock)begin
+        if (hit) busywait = 0;
+    end
 
     //Combinational part for indexing, tag comparison for hit deciding, etc.
     assign #1 tag = pc[9:7];
@@ -53,24 +60,72 @@ module icache(
     assign valid = cache_mem[index][131];
 
     assign #0.9 hit = (valid && (tag==cache_tag)) ? 1 : 0;//tag comparison and checking for validity
+    
+    /* Cache Controller FSM Start */
 
     parameter IDLE = 3'b0, MEM_READ = 3'b1;
     reg [2:0] state, next_state;
 
-    always @(posedge clock)begin
-        if(reset) begin
-            for(i=0;i<8;i++) begin
-                cache_mem[i] = 0;
+    // combinational next state logic
+    always @(*)
+    begin
+        case (state)
+            IDLE:
+                if (!hit)//miss  
+                    next_state = MEM_READ;
+                else 
+                    next_state = IDLE;
+            
+            MEM_READ:
+                if (!mem_busywait)
+                    next_state = IDLE;
+                else    
+                    next_state = MEM_READ;
+            
+        endcase
+    end
+
+    // combinational output logic
+    always @(*)
+    begin
+        case(state)
+            IDLE:
+            begin
+                mem_read = 0;
+                mem_address = 9'bz;
+                busywait = 0;                
+
             end
-        end 
-        else if (hit) busywait = 0;
-        else begin
-            busywait = 1;
-            mem_read = 1;
-            mem_address = {tag, index};
-            #1 if(!mem_busywait)begin //storing the correct data ftched from memory due to a miss
-            cache_mem[index] =  {1'b1,tag,mem_instruction};//valid
-            mem_read = 0;
+        
+            MEM_READ: 
+            begin
+                mem_read = 1;
+                mem_address = {tag, index};
+                busywait = 1;
+                #1 if(!mem_busywait)begin //storing the correct data ftched from memory due to a miss
+                cache_mem[index] =  {1'b1,tag,mem_instruction};//valid
+                mem_read = 0;
+                end
+                
+            end
+            
+        endcase
+    end
+
+    // sequential logic for state transitioning 
+    always @(posedge clock)
+    begin
+        if(reset)
+            state = IDLE;
+        else
+            state = next_state;
+    end
+
+    always @(posedge clock)
+    begin
+    if(reset) begin
+        for(i=0;i<8;i++) begin
+            cache_mem[i] = 0;
         end
     end
     end

@@ -38,7 +38,7 @@ module cpu_tb;
 
     reg [7:0] instr_mem[0:1023];//instruction memory array
 
-    cpu mycpu(PC, INSTRUCTION, CLK, RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,DBUSYWAIT);
+    cpu mycpu(PC, INSTRUCTION, CLK, RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,DBUSYWAIT,IBUSYWAIT);
     
     dcache data_cache(CLK,RESET,READ,WRITE,ADDRESS,WRITE_DATA,READ_DATA,DBUSYWAIT,dmem_read,dmem_write,dmem_address,mem_writedata,mem_readdata,dmem_busywait);
     data_memory dmem(CLK,RESET,dmem_read,dmem_write,dmem_address,mem_writedata,mem_readdata,dmem_busywait);
@@ -70,7 +70,7 @@ module cpu_tb;
         // TODO: Reset the CPU (by giving a pulse to RESET signal) to start the program execution
         
         // finish simulation after some time
-        #3000
+        #30000
         $finish;
         
     end
