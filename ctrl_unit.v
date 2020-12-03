@@ -22,148 +22,152 @@ module control_unit(INSTRUCTION,WRITEENABLE,ALUOP,COMPLEMENT_FLAG,IMMEDIATE_FALG
     end
 
     always @ (INSTRUCTION) begin//control unit decisions ; with simulated decoding delays
+        #1
         case (opcode)
             8'b0000_0000 : begin//register is written into and an immediate value is chosen in a loadi instruction
-                WRITEENABLE <= #1 1;
-                COMPLEMENT_FLAG <= #1 0;//doesn't matter 0 or 1
-                IMMEDIATE_FALG <=#1 1;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b000;//loadi==>foward                  
+                WRITEENABLE =  1;
+                COMPLEMENT_FLAG =  0;//doesn't matter 0 or 1
+                IMMEDIATE_FALG = 1;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP = 3'b000;//loadi==>foward                  
             end
             8'b0000_0001 : begin// uncomplemented register file output two is fowarded to be written     
-                WRITEENABLE <= #1 1;
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b000;//mov==>foward 
+                WRITEENABLE =  1;
+                COMPLEMENT_FLAG =  0;
+                IMMEDIATE_FALG =  0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP =  3'b000;//mov==>foward 
             end
             8'b0000_0010 : begin//uncomplemented values are added             
-                WRITEENABLE <= #1 1;
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b001;//add==>add
+                WRITEENABLE =  1;
+                COMPLEMENT_FLAG = 0;
+                IMMEDIATE_FALG = 0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP =  3'b001;//add==>add
             end
             8'b0000_0011 : begin//complemented values are added    
-                WRITEENABLE <= #1 1;
-                COMPLEMENT_FLAG <= #1 1;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b001;//sub==>add
+                WRITEENABLE =  1;
+                COMPLEMENT_FLAG =  1;
+                IMMEDIATE_FALG =  0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP =  3'b001;//sub==>add
             end
             8'b0000_0100 : begin//uncomplemented reg values are andded 
-                WRITEENABLE <= #1 1;
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b010;//and==>and  
+                WRITEENABLE =  1;
+                COMPLEMENT_FLAG =  0;
+                IMMEDIATE_FALG = 0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP = 3'b010;//and==>and  
             end
             8'b0000_0101 : begin//uncomplemented values are orred         
-                WRITEENABLE <= #1 1;
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b011;//or==>or    
+                WRITEENABLE = 1;
+                COMPLEMENT_FLAG = 0;
+                IMMEDIATE_FALG = 0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP = 3'b011;//or==>or    
             end
             8'b0000_0110 : begin//jump instruction ; alu's behaviour doesn't matter
-                WRITEENABLE <= #1 0;
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 1;//jump is set to 1
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b000;    
+                WRITEENABLE = 0;
+                COMPLEMENT_FLAG = 0;
+                IMMEDIATE_FALG =  0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 1;//jump is set to 1
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP = 3'b000;    
             end
             8'b0000_0111 : begin//beq instruction ; alu performs an add operation with the complemented data2 value         
-                WRITEENABLE <= #1 0;
-                COMPLEMENT_FLAG <= #1 1;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 1;//branch flag is set to 1
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b010;//beq==>add
+                WRITEENABLE = 0;
+                COMPLEMENT_FLAG = 1;
+                IMMEDIATE_FALG = 0;
+                BRANCH_FALG = 1;//branch flag is set to 1
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP = 3'b010;//beq==>add
             end
             8'b0000_1000 : begin//lwd instruction ; alu performs a foward operation 
-                WRITEENABLE <= #1 1;//write to reg file
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 1;//read memory
-                LOAD_WORD_FLAG <=#1 1;
-                ALUOP <= #1 3'b000;
+                WRITEENABLE =  1;//write to reg file
+                COMPLEMENT_FLAG =  0;
+                IMMEDIATE_FALG =  0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 1;//read memory
+                LOAD_WORD_FLAG = 1;
+                ALUOP =  3'b000;
             end
             8'b0000_1001 : begin//lwi instruction ; alu performs a foward operation       
-                WRITEENABLE <= #1 1;//write to reg file
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 1;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 0;
-                READ <=#1 1;//read memory
-                LOAD_WORD_FLAG <=#1 1;
-                ALUOP <= #1 3'b000;
+                WRITEENABLE =  1;//write to reg file
+                COMPLEMENT_FLAG = 0;
+                IMMEDIATE_FALG =  1;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 0;
+                READ = 1;//read memory
+                LOAD_WORD_FLAG = 1;
+                ALUOP =  3'b000;
             end
             8'b0000_1010 : begin//swd instruction ; alu performs a foward operation         
-                WRITEENABLE <= #1 0;
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 0;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 1;//write to memory
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b000;
+                WRITEENABLE =  0;
+                COMPLEMENT_FLAG = 0;
+                IMMEDIATE_FALG = 0;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 1;//write to memory
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP = 3'b000;
             end
             8'b0000_1011 : begin//swi instruction ; alu performs a foward operation 
-                WRITEENABLE <= #1 0;
-                COMPLEMENT_FLAG <= #1 0;
-                IMMEDIATE_FALG <= #1 1;
-                BRANCH_FALG <=#1 0;
-                JUMP_FALG <=#1 0;
-                WRITE <=#1 1;//write to memory
-                READ <=#1 0;
-                LOAD_WORD_FLAG <=#1 0;
-                ALUOP <= #1 3'b000;
+                WRITEENABLE = 0;
+                COMPLEMENT_FLAG = 0;
+                IMMEDIATE_FALG = 1;
+                BRANCH_FALG = 0;
+                JUMP_FALG = 0;
+                WRITE = 1;//write to memory
+                READ = 0;
+                LOAD_WORD_FLAG = 0;
+                ALUOP = 3'b000;
             end
             default : begin              
-                WRITEENABLE <= #1 1'bz;
-                COMPLEMENT_FLAG <= #1 1'bz;
-                IMMEDIATE_FALG <= #1 1'bz;
-                BRANCH_FALG <=#1 1'bz;
-                JUMP_FALG <=#1 1'bz;
-                ALUOP <= #1 3'bzzz;    
+                WRITEENABLE = 1'bz;
+                COMPLEMENT_FLAG = 1'bz;
+                IMMEDIATE_FALG = 1'bz;
+                BRANCH_FALG = 1'bz;
+                JUMP_FALG = 1'bz;
+                WRITE = 1'bz;//write to memory
+                READ =1'bz;
+                LOAD_WORD_FLAG = 1'bz;;
+                ALUOP = 3'bzzz;    
             end
-        endcase          
+        endcase       
             
     end
 

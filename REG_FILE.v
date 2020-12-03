@@ -1,8 +1,9 @@
 
 `timescale 1ns/100ps
-module reg_file(IN,OUT1,OUT2,INADDRESS,OUT1ADDRESS,OUT2ADDRESS, WRITE, CLK, RESET,BUSYWAIT);
+module reg_file(IN,OUT1,OUT2,INADDRESS,OUT1ADDRESS,OUT2ADDRESS, WRITE, CLK, RESET,BUSYWAIT,IBUSYWAIT);
     input [7:0] IN;
     input BUSYWAIT;
+    input IBUSYWAIT;
     output [7:0] OUT1;
     output [7:0] OUT2;
     input [2:0] INADDRESS;//defining inputs and outputs
@@ -20,15 +21,17 @@ module reg_file(IN,OUT1,OUT2,INADDRESS,OUT1ADDRESS,OUT2ADDRESS, WRITE, CLK, RESE
 
     assign #2 OUT2 = REG_FILE[OUT2ADDRESS] ;
 
-    always @ (posedge CLK & !BUSYWAIT) begin//at the positive edge of the clock signal
+    always @ (posedge CLK && !BUSYWAIT && !IBUSYWAIT) begin//at the positive edge of the clock signal
+
         if (RESET) begin//if reset signal is enabled, assign registers to  all zeros
             for (i=0;i<8;i++) 
                 REG_FILE[i] <= #1 8'b0000_0000;
-        end else if (WRITE) begin//if the reset is not enabled and the write is enabled write IN value to the relevent register
-            #1 REG_FILE[INADDRESS] <=  IN;
+        end else #1 if (WRITE) begin//if the reset is not enabled and the write is enabled write IN value to the relevent register
+             REG_FILE[INADDRESS] <=  IN;
         end
+
     end
-      /* START DEBUGGING CODE (Not required in the usual implementation */
+   
     initial
     begin
     // monitor changes in reg file content and print (used to check whether the CPU is running properly)

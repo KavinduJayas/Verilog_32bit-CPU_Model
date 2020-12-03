@@ -3,14 +3,14 @@
 `include "ctrl_unit.v"
 `timescale 1ns/100ps
  
-module cpu(PC, INSTRUCTION,CLK, RESET, READ, WRITE, ADDRESS, WRITE_DATA, READ_DATA, DBUSYWAIT,IBUSYWAIT);
+module cpu(PC, INSTRUCTION,CLK, RESET, READ, WRITE, ADDRESS, WRITE_DATA, READ_DATA, BUSYWAIT,IBUSYWAIT);
 
     input CLK,RESET;
     output reg [31:0] PC;//need to store the value of pc to be output 
     input [31:0] INSTRUCTION;
     output WRITE;//memory control signal for writing
     output READ;//memory control signal for reading
-    input DBUSYWAIT;//control signal from memory busy  
+    input BUSYWAIT;//control signal from memory busy  
     input IBUSYWAIT;
     output [7:0] WRITE_DATA;//data to be written to memory
     input [7:0] READ_DATA;//data read from memory
@@ -58,7 +58,7 @@ module cpu(PC, INSTRUCTION,CLK, RESET, READ, WRITE, ADDRESS, WRITE_DATA, READ_DA
     control_unit ctrlUnit(INSTRUCTION,WRITEENABLE,ALUOP,COMPLEMENT_FLAG,IMMEDIATE_FALG,BRANCH_FALG,JUMP_FALG,WRITE,READ,LOAD_WORD_FLAG);
     pc_adder pcNext(PC,PC_PLUS4);
     pc_adder_jump pcJumpNext(PC_PLUS4,PC_NEXT_JUMP,JUMP_IMMEDIATE_FINAL);
-    reg_file regFile(REG_FILE_DATA_IN,REGOUT1,REGOUT2,WRITEREG,READREG1,READREG2, WRITEENABLE, CLK, RESET,DBUSYWAIT);
+    reg_file regFile(REG_FILE_DATA_IN,REGOUT1,REGOUT2,WRITEREG,READREG1,READREG2, WRITEENABLE, CLK, RESET,BUSYWAIT,IBUSYWAIT);
     alu ALU(REGOUT1,IMMEDIATE_MUX_OUT,ALURESULT,ALUOP,ZERO);
     twosComplement complementor(REGOUT2,COMPLEMENTED_OUT);
 
@@ -116,7 +116,7 @@ module cpu(PC, INSTRUCTION,CLK, RESET, READ, WRITE, ADDRESS, WRITE_DATA, READ_DA
     always @ (posedge CLK) begin//synchronous reset of the pc
         if(RESET)
             PC <= #1 32'b0;
-        #1 if(!(DBUSYWAIT || IBUSYWAIT) & !RESET)
+        #1 if(!BUSYWAIT && !RESET && !IBUSYWAIT)
              PC = PC_NEXT;
     end
 
